@@ -42,7 +42,7 @@ public class GraphLibrary{
 
   /**
   Helper method for function getPath(). Uses recursion to construct the path that
-  will lead from a given node to the center of the BFS tree. 
+  will lead from a given node to the center of the BFS tree.
   */
   public static void getPathHelpter(Graph<V,E> tree, V v, List<V> path){
     if (g.outNeighbors(v).isEmpty()){
@@ -55,6 +55,22 @@ public class GraphLibrary{
       }
     }
   }
+
+  /*This is a non-recursive way of doing it, but I'm just confused
+because I don't know howt o access the element inside of the
+outNeighbors iterable method. I also technically don't know if
+outNeighbors has a method called isEmpty() l o l 
+
+  public static <V,E> List<V> getPath(Graph<V,E> tree, V v){
+    List<V> path = new List<V>();
+    V v2 = v;
+    path.add(v);
+    while (!g.outNeighbors(v2).isEmpty()){
+      path.add(v2);
+      v2 = g.outNeighbors(v2).get
+    }
+    return path;
+  }*/
 
   /**
   */
