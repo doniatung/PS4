@@ -13,7 +13,7 @@ public class GraphLibrary{
     Queue<V> queue = new Queue<V>();
     Graph<V,E> pathTree = new Graph<V,E>();
     Queue<V> visited = new Queue<V>();
-    pathTree.insertVertex(source, null);
+    pathTree.insertVertex(source);
     holder.enqueue(source);
     visited.enqueue(source);
     while (!queue.isEmpty()){
@@ -22,7 +22,8 @@ public class GraphLibrary{
         if (!visited.contains(v)){
           visited.add(v);
           queue.add(v);
-          pathTree.put(v, u);
+          pathTree.insertVertex(v);
+          pathTree.insertDirected(v,u,g.getLabel(u,v));
         }
       }
     }
@@ -34,10 +35,20 @@ public class GraphLibrary{
   public static <V,E> List<V> getPath(Graph<V,E> tree, V v){
     List<V> path = new List<V>();
     path.add(v);
-    for (V vertex: tree.vertices()){
-      path.add(vertex);
-    }
+    getPathHelpter(tree, v, path);
     return path;
+  }
+
+  public static void getPathHelpter(Graph<V,E> tree, V v, List<V> path){
+    if (g.outNeighbors(v).isEmpty()){
+      return path;
+    }
+    else{
+      for (V vertex: g.outNeighbors(v)){//should be only one outNeighbor
+        path.add(vertex)
+        getPathHelpter(tree, v, path);
+      }
+    }
   }
 
   /**
