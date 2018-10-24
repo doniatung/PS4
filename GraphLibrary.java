@@ -1,6 +1,7 @@
 /**
 
 @author Donia Tung, CS10, Dartmouth Fall 2018
+@author Lucas Rathgeb, CS10, Dartmouth Fall 2018
 
 Class containing a library of methods to be used on graphs
 */
@@ -39,6 +40,10 @@ public class GraphLibrary{
     return path;
   }
 
+  /**
+  Helper method for function getPath(). Uses recursion to construct the path that
+  will lead from a given node to the center of the BFS tree. 
+  */
   public static void getPathHelpter(Graph<V,E> tree, V v, List<V> path){
     if (g.outNeighbors(v).isEmpty()){
       return path;
