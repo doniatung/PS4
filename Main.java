@@ -1,8 +1,9 @@
 public class Main{
 
-  public void fileReader(String pathname){
+  
 
-  }
+
+
 
   public static void main(String[]args){
     Graph<String, String> relationships = new AdjacencyMapGraph<String, String>();

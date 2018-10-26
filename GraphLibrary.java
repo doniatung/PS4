@@ -98,5 +98,46 @@ outNeighbors has a method called isEmpty() l o l
 
   }
 
+  public static Map<Integer,String> makeMap(String pathName){
+    Map<Integer,String> idMap = new HashMap<Integer,String>;
+    try{
+      BufferedReader input = new BufferedReader(new FileReader(pathName));
+      String line;
+      while ((line = input.readLine()) != null){
+        if (line.contains["|"]){
+          String[] info = line.split("\\|");
+          int id = Integer.valueOf(info[0]);
+          if (!idMap.containsKey(id)){
+            idMap.put(id, info[1]);
+          }
+        }
+      }
+    }
+    catch (FileNotFoundException e){
+      System.out.println("File not found");
+    }
+    catch (IOException e){
+
+    }
+    finally{
+      input.close();
+    }
+    return idMap;
+  }
+
+  public static AdjacencyMapGraph<String, HashSet<String>> fileReader(HashMap<Integer,String> actorMap, HashMap<Integer,String> movieMap, String pathName){
+    AdjacencyMapGraph<String, HashSet<String>> actorMovieGraph = new AdjacencyMapGraph<String, HashSet<String>>();
+    try{
+      BufferedReader input = new BufferedReader(new FileReader(pathName));
+      String line;
+      while (line = input.readLine() != null){
+        if (line.contains["|"]){
+          info
+
+        }
+      }
+    }
+  }
+
 
 }
