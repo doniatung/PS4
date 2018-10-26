@@ -1,5 +1,6 @@
-/**
+import java.util.*;
 
+/**
 @author Donia Tung, CS10, Dartmouth Fall 2018
 @author Lucas Rathgeb, CS10, Dartmouth Fall 2018
 
@@ -11,18 +12,18 @@ public class GraphLibrary{
   /**
   */
   public static <V,E> Graph<V,E> bfs(Graph<V,E> g, V source){
-    Queue<V> queue = new SLLQueue<V>();
-    Graph<V,E> pathTree = new Graph<V,E>();
-    Queue<V> visited = new Queue<V>();
+    SLLQueue<V> queue = new SLLQueue<V>();
+    Graph<V,E> pathTree = new AdjacencyMapGraph<V,E>();
+    SLLQueue<V> visited = new SLLQueue<V>();
     pathTree.insertVertex(source);
-    holder.enqueue(source);
+    queue.enqueue(source);
     visited.enqueue(source);
     while (!queue.isEmpty()){
       V u = queue.remove();
       for (V v : g.outNeighbors(u)){
         if (!visited.contains(v)){
-          visited.add(v);
-          queue.add(v);
+          visited.enqueue(v);
+          queue.enqueue(v);
           pathTree.insertVertex(v);
           pathTree.insertDirected(v,u,g.getLabel(u,v));
         }
@@ -34,7 +35,7 @@ public class GraphLibrary{
   /**
   */
   public static <V,E> List<V> getPath(Graph<V,E> tree, V v){
-    List<V> path = new List<V>();
+    List<V> path = new ArrayList<V>();
     path.add(v);
     getPathHelper(tree, v, path);
     return path;
@@ -44,13 +45,13 @@ public class GraphLibrary{
   Helper method for function getPath(). Uses recursion to construct the path that
   will lead from a given node to the center of the BFS tree.
   */
-  public static void getPathHelper(Graph<V,E> tree, V v, List<V> path){
-    if (g.outNeighbors(v).isEmpty()){
+  public static <V,E> List<V> getPathHelper(Graph<V,E> tree, V v, List<V> path){
+    if (tree.outNeighbors(v) == null){
       return path;
     }
     else{
-      for (V vertex: g.outNeighbors(v)){//should be only one outNeighbor
-        path.add(vertex)
+      for (V vertex: tree.outNeighbors(v)){//should be only one outNeighbor
+        path.add(vertex);
         getPathHelpter(tree, v, path);
       }
     }
@@ -74,11 +75,13 @@ outNeighbors has a method called isEmpty() l o l
 
   /**
   */
+
   public static <V,E> Set<V> missingVertices(Graph<V,E> graph, Graph<V,E> subgraph){
-    HashSet<V> missingV = new HashSet<V>();
+    Set<V> missingV = new HashSet<V>();
+    Graph<V,E> bigGraph = graph;
     Iterable<V> bigGVertices = graph.vertices();
     for (V vertex: subgraph.vertices()){
-      bigGVertices.removeVertex(vertex);
+      bigGraph.removeVertex(vertex);
     }
     for (V remaining: bigGVertices){
       missingV.add(remaining);
