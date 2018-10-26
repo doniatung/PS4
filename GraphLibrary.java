@@ -11,7 +11,7 @@ public class GraphLibrary{
   /**
   */
   public static <V,E> Graph<V,E> bfs(Graph<V,E> g, V source){
-    Queue<V> queue = new Queue<V>();
+    Queue<V> queue = new SLLQueue<V>();
     Graph<V,E> pathTree = new Graph<V,E>();
     Queue<V> visited = new Queue<V>();
     pathTree.insertVertex(source);
@@ -36,7 +36,7 @@ public class GraphLibrary{
   public static <V,E> List<V> getPath(Graph<V,E> tree, V v){
     List<V> path = new List<V>();
     path.add(v);
-    getPathHelpter(tree, v, path);
+    getPathHelper(tree, v, path);
     return path;
   }
 
@@ -44,7 +44,7 @@ public class GraphLibrary{
   Helper method for function getPath(). Uses recursion to construct the path that
   will lead from a given node to the center of the BFS tree.
   */
-  public static void getPathHelpter(Graph<V,E> tree, V v, List<V> path){
+  public static void getPathHelper(Graph<V,E> tree, V v, List<V> path){
     if (g.outNeighbors(v).isEmpty()){
       return path;
     }
@@ -57,7 +57,7 @@ public class GraphLibrary{
   }
 
   /*This is a non-recursive way of doing it, but I'm just confused
-because I don't know howt o access the element inside of the
+because I don't know how to access the element inside of the
 outNeighbors iterable method. I also technically don't know if
 outNeighbors has a method called isEmpty() l o l
 
@@ -83,7 +83,7 @@ outNeighbors has a method called isEmpty() l o l
     for (V remaining: bigGVertices){
       missingV.add(remaining);
     }
-    return missingV; 
+    return missingV;
   }
 
 
