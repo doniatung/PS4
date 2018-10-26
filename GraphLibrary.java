@@ -59,7 +59,7 @@ public class GraphLibrary{
   /*This is a non-recursive way of doing it, but I'm just confused
 because I don't know howt o access the element inside of the
 outNeighbors iterable method. I also technically don't know if
-outNeighbors has a method called isEmpty() l o l 
+outNeighbors has a method called isEmpty() l o l
 
   public static <V,E> List<V> getPath(Graph<V,E> tree, V v){
     List<V> path = new List<V>();
@@ -75,9 +75,15 @@ outNeighbors has a method called isEmpty() l o l
   /**
   */
   public static <V,E> Set<V> missingVertices(Graph<V,E> graph, Graph<V,E> subgraph){
-
-
-
+    HashSet<V> missingV = new HashSet<V>();
+    Iterable<V> bigGVertices = graph.vertices();
+    for (V vertex: subgraph.vertices()){
+      bigGVertices.removeVertex(vertex);
+    }
+    for (V remaining: bigGVertices){
+      missingV.add(remaining);
+    }
+    return missingV; 
   }
 
 
