@@ -163,6 +163,7 @@ public class GraphLibrary{
    */
    public static AdjacencyMapGraph<String, ArrayList<String>> makeGraph (Map<Integer,String> movies, Map<Integer,String> actors, String pathName) throws Exception{
      AdjacencyMapGraph<String,ArrayList<String>> actorMovieGraph = new AdjacencyMapGraph<String, ArrayList<String>>();
+     HashMap<String, ArrayList<String>> mToA = new HashMap<String, ArrayList<String>>();
      try{
        BufferedReader input = new BufferedReader(new FileReader(pathName));
        String line;
@@ -174,15 +175,23 @@ public class GraphLibrary{
            String movie = movies.get(movieInt);
            String actor = actors.get(actorInt);
            ArrayList<String> list = new ArrayList<String>();
-           if (actorMovieGraph.containsKey(movie)){
-             actorMovieGraph.get(movie).add(actor);
+           if (mToA.containsKey(movie)){
+             mToA.get(movie).add(actor);
+             actorMovieGraph.insertVertex(actor);
            }
            else{
              list.add(actor);
-             actorMovieGraph.put(movie, list);
+             mToA.put(movie, list);
            }
          }
        }
+        for (String key: mToA.ketSet()){
+          for (String actor: mToA.get(key)){
+            for (String actor2: mToA.get(key)){
+              actorMovieGraph.insertUndirected(actor, actor2, key);
+            }
+          }
+        }
      }
      catch(FileNotFoundException e ){
        System.out.println("File Not Found");
