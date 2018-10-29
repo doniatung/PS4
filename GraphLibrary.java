@@ -128,8 +128,8 @@ public class GraphLibrary{
      BufferedReader input = null;
      try{
        input = new BufferedReader(new FileReader(pathName));
-       String line;
-       while ((line = input.readLine()) != null){
+       String line = input.readLine();
+       while (line != null){
          if (line.contains("|")){
            String[] id = line.split("\\|");
            int num = Integer.parseInt(id[0]);
@@ -137,6 +137,7 @@ public class GraphLibrary{
              ids.put(num, id[1]);
            }
          }
+         line = input.readLine();
        }
      }
      catch (FileNotFoundException e){
@@ -178,7 +179,7 @@ public class GraphLibrary{
            ArrayList<String> list = new ArrayList<String>();
            if (mToA.containsKey(movie)){
              mToA.get(movie).add(actor);
-             actorMovieGraph.insertVertex(actor);
+             if(!actorMovieGraph.hasVertex(actor)) actorMovieGraph.insertVertex(actor);
            }
            else{
              list.add(actor);
@@ -188,14 +189,18 @@ public class GraphLibrary{
          line = input.readLine();
        }
         for (String key: mToA.keySet()){
-          for (String actor: mToA.get(key)){
-            for (String actor2: mToA.get(key)){
-            	if(!actorMovieGraph.hasEdge(actor, actor2)) {
+        	ArrayList<String> actArr = mToA.get(key);
+        	System.out.println(actArr);
+          for (String actor: actArr){
+            for (String actor2: actArr){
+            	
+            	if(actorMovieGraph.hasVertex(actor) && actorMovieGraph.hasVertex(actor2) && !actorMovieGraph.hasEdge(actor, actor2)) {
             		actorMovieGraph.insertUndirected(actor, actor2, new HashSet<String>());
             		actorMovieGraph.getLabel(actor, actor2).add(key);
-            	}else {
+            	}else if(actorMovieGraph.hasVertex(actor) && actorMovieGraph.hasVertex(actor2)){
             		actorMovieGraph.getLabel(actor, actor2).add(key);
             	}
+            
             }
           }
         }
@@ -280,4 +285,3 @@ public class GraphLibrary{
    }
 
 }
-
