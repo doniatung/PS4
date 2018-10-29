@@ -48,7 +48,7 @@ public class GraphLibrary{
  	  public static <V,E> List<V> getPath(Graph<V,E> tree, V v){
  	    List<V> path = new ArrayList<V>();
  	    path.add(v);
- 	    getPathHelpter(tree, v, path);
+ 	    getPathHelper(tree, v, path);
  	    return path;
  	  }
 
@@ -58,14 +58,14 @@ public class GraphLibrary{
     * @param tree
     * @param v
  	  */
- 	  public static <V,E> List<V> getPathHelpter(Graph<V,E> tree, V v, List<V> path){
- 	    if (tree.outDegree(v) == 0){
+ 	  public static <V,E> List<V> getPathHelper(Graph<V,E> tree, V v, List<V> path){
+ 	    if (tree.hasVertex(v) && tree.outDegree(v) == 0){
  	      return path;
  	    }
  	    else{
  	      for (V vertex: tree.outNeighbors(v)){//should be only one outNeighbor
  	        path.add(vertex);
- 	        getPathHelpter(tree, v, path);
+ 	        getPathHelper(tree, v, path);
  	      }
  	    }
  	    return path;
@@ -163,7 +163,8 @@ public class GraphLibrary{
    * @return    a constructed AdjacencyMapGraph with Keys as movie title Strings and Values of ArrayLists of actors within the movies
    */
    public static AdjacencyMapGraph<String, Set<String>> makeGraph (Map<Integer,String> movies, Map<Integer,String> actors, String pathName) throws Exception{
-     AdjacencyMapGraph<String,Set<String>> actorMovieGraph = new AdjacencyMapGraph<String, Set<String>>();
+     
+	   AdjacencyMapGraph<String,Set<String>> actorMovieGraph = new AdjacencyMapGraph<String, Set<String>>();
      HashMap<String, ArrayList<String>> mToA = new HashMap<String, ArrayList<String>>();
      BufferedReader input = null;
      try{
@@ -182,6 +183,7 @@ public class GraphLibrary{
              if(!actorMovieGraph.hasVertex(actor)) actorMovieGraph.insertVertex(actor);
            }
            else{
+        	 if(!actorMovieGraph.hasVertex(actor)) actorMovieGraph.insertVertex(actor);
              list.add(actor);
              mToA.put(movie, list);
            }
@@ -217,27 +219,27 @@ public class GraphLibrary{
      return actorMovieGraph;
    }
    
-   public static <V, E> void sortByAvStep(Graph<String,Set<String>> graph, int order){
+   public static <V, E> void sortByAvSep(Graph<String,Set<String>> graph, int order){
 	   ArrayList<Object[]> sortedAv = new ArrayList<Object[]>();
 	   for(String v: graph.vertices()) {
 		   Object[] arr = {v, averageSeparation(graph, v)};
 		   for(int i = 0; i < sortedAv.size(); i++) {
 			   if ((int)arr[1] < (int)sortedAv.get(i)[1]) {
 				   sortedAv.add(i, arr);
-			   }else if(i == sortedAv.size() - 1) {
+			   }else if(i == Math.abs(order) - 1) {
 				   sortedAv.add(arr);
+				   break;
 			   }
 		   }
 			   
 	   }
 	   if(order >= 0) {
-		   for(Object[] o : sortedAv) {
-				System.out.println(o[0] + " has an average separation of " + o[1]);
+		   for(int i = 0; i < sortedAv.size(); i++) {
+				System.out.println(sortedAv.get(i)[0] + " has an average separation of " + sortedAv.get(i)[1]);
 		   }
 	   }else {
-		   for(int i = sortedAv.size() - 1; i >= 0; i--) {
-			   Object[] o = sortedAv.get(i);
-			   System.out.println(o[0] + " has an average separation of " + o[1]);
+		   for(int i = 0; i < sortedAv.size(); i++) {
+			   System.out.println(sortedAv.get(sortedAv.size()-i)[0] + " has an average separation of " + sortedAv.get(sortedAv.size()-i)[1]);
 		   }
 	   }
    }

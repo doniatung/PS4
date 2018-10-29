@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -13,17 +12,17 @@ public class Main{
 		Graph<String, Set<String>> bfs = null;
 		String strIn;
 		String CoU = "";
-
+		
+		System.out.println("What would you like to do?\nCommands:\r\n" +
+				"c <#>: list top (positive number) or bottom (negative) <#> centers of the universe, sorted by average separation\r\n" +
+				"d <low> <high>: list actors sorted by degree, with degree between low and high\r\n" +
+				"i: list actors with infinite separation from the current center\r\n" +
+				"p <name>: find path from <name> to current center of the universe\r\n" +
+				"s <low> <high>: list actors sorted by non-infinite separation from the current center, with separation between low and high\r\n" +
+				"u <name>: make <name> the center of the universe\r\n" +
+				"q: quit game");
+		
 		while(play) {
-			System.out.println("What would you like to do?\nCommands:\r\n" +
-					"c <#>: list top (positive number) or bottom (negative) <#> centers of the universe, sorted by average separation\r\n" +
-					"d <low> <high>: list actors sorted by degree, with degree between low and high\r\n" +
-					"i: list actors with infinite separation from the current center\r\n" +
-					"p <name>: find path from <name> to current center of the universe\r\n" +
-					"s <low> <high>: list actors sorted by non-infinite separation from the current center, with separation between low and high\r\n" +
-					"u <name>: make <name> the center of the universe\r\n" +
-					"q: quit game");
-
 			strIn = input.nextLine();
 			char toDo = strIn.charAt(0);
 			isValid = false;
@@ -37,7 +36,7 @@ public class Main{
 							direction = "bottom";
 						}
 				   	 	System.out.println("List of " + direction + " " + Math.abs(order) + " centers of the universe, sorted by average separation: ");
-				   	 	GraphLibrary.sortByAvStep(graph, order);
+				   	 	GraphLibrary.sortByAvSep(bfs, order);
 					}
 					else{
 						System.out.println("That number is too big. Try a smaller one.");
@@ -47,7 +46,11 @@ public class Main{
 				}else if(toDo == 'd') {
 				
 					int low = Integer.parseInt(strIn.substring(strIn.indexOf("<") + 1, strIn.indexOf(">")));
-					int high = Integer.parseInt(strIn.substring(strIn.indexOf("<", strIn.indexOf(">")) + 1, strIn.indexOf(">", strIn.indexOf(strIn.indexOf(">")))));
+					
+					int high = Integer.parseInt(strIn.substring(
+							strIn.indexOf("<", strIn.indexOf(">")) + 1, 
+							strIn.indexOf(">", strIn.indexOf(">"))));
+					
 					GraphLibrary.sortByDegree(graph, low, high);
 					isValid = true;
 					
@@ -58,7 +61,7 @@ public class Main{
 					
 				}else if(toDo == 'p') {
 					
-					String person = strIn.substring(2);
+					String person = strIn.substring(strIn.indexOf("<") + 1, strIn.indexOf(">"));
 					if (bfs != null && bfs.hasVertex(person)){
 						List<String> list = GraphLibrary.getPath(bfs, person);
 						int num = list.size() - 1;
@@ -84,8 +87,6 @@ public class Main{
 				}else if(toDo == 'u') {
 					
 					CoU = strIn.substring(strIn.indexOf("<") + 1, strIn.indexOf(">"));
-					System.out.println(CoU);
-					System.out.println(graph);
 					if (graph.hasVertex(CoU)){
 						System.out.println(CoU + " game >");
 						bfs = GraphLibrary.bfs(graph, CoU);
