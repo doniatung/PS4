@@ -5,52 +5,76 @@ import java.util.Set;
 
 public class Main{
 
-  
+
 	private static <V,E> void runGame(String moviePath, String actorPath, String movieActorPath) throws Exception {
 		boolean isValid = false, play = true;
-		
+
 		Scanner input = new Scanner(System.in);
 		Graph<String, Set<String>> graph = GraphLibrary.makeGraph(GraphLibrary.fileToMap(moviePath), GraphLibrary.fileToMap(actorPath), movieActorPath);
-		
+    Graph<String, Set<String>> bfs = GraphLibrary.bfs(graph, CoU);
+
+
 		String strIn;
 		String CoU = "";
-		
+
 		while(play) {
-			System.out.println("What would you like to do?\n Commands:\r\n" + 
-					"c <#>: list top (positive number) or bottom (negative) <#> centers of the universe, sorted by average separation\r\n" + 
-					"d <low> <high>: list actors sorted by degree, with degree between low and high\r\n" + 
-					"i: list actors with infinite separation from the current center\r\n" + 
-					"p <name>: find path from <name> to current center of the universe\r\n" + 
-					"s <low> <high>: list actors sorted by non-infinite separation from the current center, with separation between low and high\r\n" + 
-					"u <name>: make <name> the center of the universe\r\n" + 
+			System.out.println("What would you like to do?\n Commands:\r\n" +
+					"c <#>: list top (positive number) or bottom (negative) <#> centers of the universe, sorted by average separation\r\n" +
+					"d <low> <high>: list actors sorted by degree, with degree between low and high\r\n" +
+					"i: list actors with infinite separation from the current center\r\n" +
+					"p <name>: find path from <name> to current center of the universe\r\n" +
+					"s <low> <high>: list actors sorted by non-infinite separation from the current center, with separation between low and high\r\n" +
+					"u <name>: make <name> the center of the universe\r\n" +
 					"q: quit game");
-			
+
 			strIn = input.nextLine();
 			char toDo = strIn.charAt(0);
 			while(!isValid) {
 				if(toDo == 'c') {
-					int order = Integer.parseInt(strIn.substring(strIn.indexOf("<") + 1, strIn.indexOf(">")));
-					GraphLibrary.sortByAvStep(graph, order);
-				}else if(toDo == 'd') {
-					int low = Integer.parseInt(strIn.substring(strIn.indexOf("<") + 1, strIn.indexOf(">")));
-					int high = Integer.parseInt(strIn.substring(strIn.indexOf("<", strIn.indexOf(">")) + 1, strIn.indexOf(">")));
+          int order = Integer.parseInt(strIn.substring(2));
+          if (order < bfs.numVertices()){
+             String direction = "top";
+             if (order < 0) {
+               direction = "bottom";
+             }
+				   	 System.out.println("List of " + direction + " " + order + " centers of the universe, sorted by average separation: ");
+             System.out.println(GraphLibrary.sortByAvStep(graph, order));
+           }
+           else{
+             System.out.println("That number is too big. Try a smaller one.")
+           }
+      	}else if(toDo == 'd') {
+					int low = Integer.parseInt(strIn.substring(2, strIn.lastIndexOf(" ")));
+					int high = Integer.parseInt(strIn.substring(strIn.lastIndexOf(" ") + 1));
 					GraphLibrary.sortByDegree(graph, low, high);
 				}else if(toDo == 'i') {
-					if(CoU.length() != 0) {
-						Graph<String, Set<String>> bfs = GraphLibrary.bfs(graph, CoU);
-						GraphLibrary.missingVertices(graph, bfs);
-					}
+					System.out.println("The following actors do not appear in a movie with " + CoU + " : " + GraphLibrary.missingVertices(graph, bfs));
 				}else if(toDo == 'p') {
-					String person = strIn.substring(strIn.indexOf("<") + 1, strIn.indexOf(">"));
-					List<String> list = GraphLibrary.getPath(GraphLibrary.bfs(graph,  CoU), person);
-					System.out.println(CoU + "game >");
-					System.out.println("");
+					String person = strIn.substring(2);
+          if (bfs.hasVertex(person)){
+					  List<String> list = GraphLibrary.getPath(bfs, person);
+            int num = list.size();
+					  System.out.println("p " + person);
+            System.out.println(person + "\\'s number is " + num);
+            for (int i = 0; i < list.size()-1; i ++){
+              System.out.println(list.get(i) + " appeared in " + bfs.getLabel(list.get(i), list.get(i+1)) + " with " + list.get(i+1));
+            }
+          }
+          else{
+            System.out.println("Sorry, that person is not connected to " + CoU);
+          }
 				}else if(toDo == 's') {
-					int low = Integer.parseInt(strIn.substring(strIn.indexOf("<") + 1, strIn.indexOf(">")));
-					int high = Integer.parseInt(strIn.substring(strIn.indexOf("<", strIn.indexOf(">")) + 1, strIn.indexOf(">")));
+          int low = Integer.parseInt(strIn.substring(2, strIn.lastIndexOf(" ")));
+          int high = Integer.parseInt(strIn.substring(strIn.lastIndexOf(" ") + 1));
 					GraphLibrary.sortByDegree(graph, low, high);
 				}else if(toDo == 'u') {
-					CoU = strIn.substring(strIn.indexOf("<"), strIn.indexOf(">"));
+					CoU = strIn.substring(2);
+          if (bfs.hasVertex(CoU)){
+            System.out.println(CoU + "game >");
+          }
+          else{
+            System.out.println("Sorry, that actor is not in this dataset. Try someone new.");
+          }
 				}else if(toDo == 'q') {
 					play = false;
 				}else {
