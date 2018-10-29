@@ -1,7 +1,6 @@
-import java.util.List;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.io.*;
+
 /**
  * Class containing a library of methods to be used on graphs
  * @author Donia Tung, CS10, Dartmouth Fall 2018
@@ -126,8 +125,9 @@ public class GraphLibrary{
    */
    public static Map<Integer, String> fileToMap(String pathName)throws Exception{
      Map<Integer, String> ids = new HashMap<Integer, String>();
+     BufferedReader input = null;
      try{
-       BufferedReader input = new BufferedReader(new FileReader(pathName));
+       input = new BufferedReader(new FileReader(pathName));
        String line;
        while ((line = input.readLine()) != null){
          if (line.contains("|")){
@@ -161,14 +161,15 @@ public class GraphLibrary{
    * @param pathName  path of file containing data with movies and their respective actors (stored as ints of ids)
    * @return    a constructed AdjacencyMapGraph with Keys as movie title Strings and Values of ArrayLists of actors within the movies
    */
-   public static AdjacencyMapGraph<String, ArrayList<String>> makeGraph (Map<Integer,String> movies, Map<Integer,String> actors, String pathName) throws Exception{
-     AdjacencyMapGraph<String,ArrayList<String>> actorMovieGraph = new AdjacencyMapGraph<String, ArrayList<String>>();
+   public static AdjacencyMapGraph<String, Set<String>> makeGraph (Map<Integer,String> movies, Map<Integer,String> actors, String pathName) throws Exception{
+     AdjacencyMapGraph<String,Set<String>> actorMovieGraph = new AdjacencyMapGraph<String, Set<String>>();
      HashMap<String, ArrayList<String>> mToA = new HashMap<String, ArrayList<String>>();
+     BufferedReader input = null;
      try{
-       BufferedReader input = new BufferedReader(new FileReader(pathName));
-       String line;
-       while ((line.readLine()) != null){
-         if (line.contains["|"]){
+       input = new BufferedReader(new FileReader(pathName));
+       String line = input.readLine();
+       while ( line != null){
+         if (line.contains("|")){
            String[] id = line.split("\\|");
            int movieInt = Integer.parseInt(id[0]);
            int actorInt = Integer.parseInt(id[1]);
@@ -184,26 +185,99 @@ public class GraphLibrary{
              mToA.put(movie, list);
            }
          }
+         line = input.readLine();
        }
-        for (String key: mToA.ketSet()){
+        for (String key: mToA.keySet()){
           for (String actor: mToA.get(key)){
             for (String actor2: mToA.get(key)){
-              actorMovieGraph.insertUndirected(actor, actor2, key);
+            	if(!actorMovieGraph.hasEdge(actor, actor2)) {
+            		actorMovieGraph.insertUndirected(actor, actor2, new HashSet<String>());
+            		actorMovieGraph.getLabel(actor, actor2).add(key);
+            	}else {
+            		actorMovieGraph.getLabel(actor, actor2).add(key);
+            	}
             }
           }
         }
      }
-     catch(FileNotFoundException e ){
+     catch(FileNotFoundException e){
        System.out.println("File Not Found");
      }
      catch(IOException e){
-       e.pritnStackTrace();
+       e.printStackTrace();
      }
      finally{
        input.close();
      }
      return actorMovieGraph;
    }
-
+   
+   public static <V, E> void sortByAvStep(Graph<String,Set<String>> graph, int order){
+	   ArrayList<Object[]> sortedAv = new ArrayList<Object[]>();
+	   for(String v: graph.vertices()) {
+		   Object[] arr = {v, averageSeparation(graph, v)};
+		   for(int i = 0; i < sortedAv.size(); i++) {
+			   if ((int)arr[1] < (int)sortedAv.get(i)[1]) {
+				   sortedAv.add(i, arr);
+			   }else if(i == sortedAv.size() - 1) {
+				   sortedAv.add(arr);
+			   }
+		   }
+			   
+	   }
+	   if(order >= 0) {
+		   for(Object[] o : sortedAv) {
+				System.out.println(o[0] + " has an average separation of " + o[1]);
+		   }
+	   }else {
+		   for(int i = sortedAv.size() - 1; i >= 0; i--) {
+			   Object[] o = sortedAv.get(i);
+			   System.out.println(o[0] + " has an average separation of " + o[1]);
+		   }
+	   }
+   }
+   
+   public static <V, E> void sortByDegree(Graph<String,Set<String>> graph, int low, int high) {
+	   ArrayList<Object[]> sortedDeg = new ArrayList<Object[]>();
+	   for(String v: graph.vertices()) {
+		   Object[] arr = {v, graph.inDegree(v)};
+		   for(int i = 0; i < sortedDeg.size(); i++) {
+			   if((int)arr[1] > high || (int)arr[1] < low) {
+				   break;
+			   }
+			   if ((int)arr[1] > (int)sortedDeg.get(i)[1]) {
+				   sortedDeg.add(i, arr);
+			   }else if(i == sortedDeg.size() - 1) {
+				   sortedDeg.add(arr);
+			   }
+		   }
+			   
+	   }
+	   for(Object[] o : sortedDeg) {
+		   System.out.println(o[0] + " has a degree of " + o[1]);
+	   }
+   }
+   
+   public static <V,E> void sortByPathSep(Graph<String,Set<String>> graph, int low, int high) {
+	   ArrayList<Object[]> sortedSep = new ArrayList<Object[]>();
+	   for(String v: graph.vertices()) {
+		   Object[] arr = {v, getPath(graph, v).size() - 1};
+		   for(int i = 0; i < sortedSep.size(); i++) {
+			   if((int)arr[1] > high || (int)arr[1] < low) {
+				   break;
+			   }
+			   if ((int)arr[1] > (int)sortedSep.get(i)[1]) {
+				   sortedSep.add(i, arr);
+			   }else if(i == sortedSep.size() - 1) {
+				   sortedSep.add(arr);
+			   }
+		   }
+			   
+	   }
+	   for(Object[] o : sortedSep) {
+		   System.out.println(o[0] + " has a degree of " + o[1]);
+	   }
+   }
 
 }
+
