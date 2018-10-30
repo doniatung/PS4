@@ -2,15 +2,28 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
+/**
+ * This method runs the Kevin Bacon game.
+ * @author Donia Tung, CS10, Dartmouth Fall 2018
+ * @author Lucas Rathgeb, CS10, Dartmouth Fall 2018
+ *
+ */
 public class Main{
 
 
+	/**
+	 * This method runs the main functionality of the game, allowing the user to input what functionality he or she
+	 * wants to use.
+	 * @param moviePath
+	 * @param actorPath
+	 * @param movieActorPath
+	 * @throws Exception
+	 */
 	private static <V,E> void runGame(String moviePath, String actorPath, String movieActorPath) throws Exception {
 		boolean isValid = false, play = true;
-		Scanner input = new Scanner(System.in);
 		Graph<String, Set<String>> graph = GraphLibrary.makeGraph(GraphLibrary.fileToMap(moviePath), GraphLibrary.fileToMap(actorPath), movieActorPath);
 		Graph<String, Set<String>> bfs = null;
-		String strIn;
+		Scanner input = new Scanner(System.in);
 		String CoU = "";
 		
 		System.out.println("What would you like to do?\nCommands:\r\n" +
@@ -23,51 +36,62 @@ public class Main{
 				"q: quit game");
 		
 		while(play) {
-			strIn = input.nextLine();
-			char toDo = strIn.charAt(0);
+			System.out.print("Input command: ");
+			input = new Scanner(System.in);
+			String str = input.nextLine();
+			char toDo = str.charAt(0);
 			isValid = false;
+			
 			while(!isValid) {
-				if(toDo == 'c') {
-					
-					int order = Integer.parseInt(strIn.substring(strIn.indexOf("<") + 1, strIn.indexOf(">")));
-					if (order < bfs.numVertices()){
-						String direction = "top";
-						if (order < 0) {
-							direction = "bottom";
+				if(toDo == 'c') {		//sorts all point in graph by average separation
+						isValid = true;
+						System.out.print("Please input number of vertices: ");
+						int order = input.nextInt();
+						if (order <= graph.numVertices()){
+							String direction = "top";
+							if (order < 0) {
+								direction = "bottom";
+							}
+					   	 	System.out.println("List of " + direction + " " + Math.abs(order) + " centers of the universe, sorted by average separation: ");
+					   	 	GraphLibrary.sortByAvSep(graph, order);
 						}
-				   	 	System.out.println("List of " + direction + " " + Math.abs(order) + " centers of the universe, sorted by average separation: ");
-				   	 	GraphLibrary.sortByAvSep(bfs, order);
-					}
-					else{
-						System.out.println("That number is too big. Try a smaller one.");
-					}
-					isValid = true;
-					
-				}else if(toDo == 'd') {
+						else{
+							System.out.println("That number is too big. Try a smaller one.");
+						}
 				
-					int low = Integer.parseInt(strIn.substring(strIn.indexOf("<") + 1, strIn.indexOf(">")));
+				}else if(toDo == 'd') {//sorts points by in degree
 					
-					int high = Integer.parseInt(strIn.substring(
-							strIn.indexOf("<", strIn.indexOf(">")) + 1, 
-							strIn.indexOf(">", strIn.indexOf(">"))));
+					isValid = true;
+					System.out.print("Input low bound: ");
+					int low = input.nextInt();
+					System.out.print("Input high bound: ");
+					int high = input.nextInt();
 					
 					GraphLibrary.sortByDegree(graph, low, high);
+					
+					
+				}else if(toDo == 'i') {//return points not connected to input center of the universe
+					
 					isValid = true;
+					if(CoU.length() == 0) {
+						System.out.println("Please set a center.");
+					}else {
+						System.out.println("The following actors are not connected to " + CoU + ": " + GraphLibrary.missingVertices(graph, bfs));
+					}
+
+				}else if(toDo == 'p') {//return the path from an input point to the center of the universe
 					
-				}else if(toDo == 'i') {
-				
-					System.out.println("The following actors do not appear in a movie with " + CoU + " : " + GraphLibrary.missingVertices(graph, bfs));
 					isValid = true;
+					System.out.print("Please enter a name: ");
+					String person = input.nextLine();
 					
-				}else if(toDo == 'p') {
-					
-					String person = strIn.substring(strIn.indexOf("<") + 1, strIn.indexOf(">"));
 					if (bfs != null && bfs.hasVertex(person)){
 						List<String> list = GraphLibrary.getPath(bfs, person);
 						int num = list.size() - 1;
 						System.out.println("p " + person);
-						System.out.println(person + "\\'s number is " + num);
-						for (int i = 0; i < list.size(); i ++){
+						System.out.println(person + "\'s number is " + num);
+						for (int i = 0; i < list.size() - 1; i ++){
+							System.out.println(bfs.hasEdge(list.get(i),  list.get(i + 1)));
 							System.out.println(list.get(i) + " appeared in " + bfs.getLabel(list.get(i), list.get(i+1)) + " with " + list.get(i+1));
 						}
 					}else if(bfs == null){
@@ -76,44 +100,54 @@ public class Main{
 					else{
 						System.out.println("Sorry, that person is not connected to " + CoU);
 					}
+					
+				}else if(toDo == 's') {//sorts points by their distance from the center of the universe
+					
 					isValid = true;
-				}else if(toDo == 's') {
+					if(bfs == null) {
+						System.out.println("Please set a center.");
+					}else {
+						System.out.print("Input low bound: ");
+						int low = input.nextInt();
+						System.out.print("Input high bound: ");
+						int high = input.nextInt();
+						GraphLibrary.sortByPathSep(bfs, low, high);
+					}
 					
-					int low = Integer.parseInt(strIn.substring(strIn.indexOf("<") + 1, strIn.indexOf(">")));
-					int high = Integer.parseInt(strIn.substring(strIn.indexOf("<", strIn.indexOf(">")) + 1, strIn.indexOf(">", strIn.indexOf(strIn.indexOf(">")))));
-					GraphLibrary.sortByDegree(graph, low, high);
+				}else if(toDo == 'u') {//sets center of the universe
+					
 					isValid = true;
+					System.out.print("Please enter name: ");
+					CoU = input.nextLine();
 					
-				}else if(toDo == 'u') {
-					
-					CoU = strIn.substring(strIn.indexOf("<") + 1, strIn.indexOf(">"));
 					if (graph.hasVertex(CoU)){
 						System.out.println(CoU + " game >");
 						bfs = GraphLibrary.bfs(graph, CoU);
 					}else{
-						
-						System.out.println("Sorry, that actor is not in this dataset. Try someone new.");
-						
+						System.out.println("Sorry, that actor is not in this dataset. Try someone new.");	
 					}
-					isValid = true;
 					
-				}else if(toDo == 'q') {
+				}else if(toDo == 'q') {//quits game
 					
 					isValid = true;
 					play = false;
 					System.out.println("Thanks for playing!");
 					
 				
-				}else {
+				}else {//catches invalid input
 					
 					System.out.println("Please use a valid command.");
-				
+					break;
 				}
 			}
 		}
 		input.close();
 	}
 
+	/**
+	 * This method creates a hand drawn graph to test some functionality.
+	 * @throws Exception
+	 */
 	private static void handDrawn() throws Exception {
 		Graph<String, String> relationships = new AdjacencyMapGraph<String, String>();
 	    String startNode = "Kevin Bacon";
@@ -130,9 +164,9 @@ public class Main{
 			relationships.insertUndirected("Charlie", "Bob", "C Movie");
 			relationships.insertUndirected("Alice", "Charlie", "D Movie");
 			relationships.insertUndirected(startNode, "Bob", "A Movie");
-			relationships.insertUndirected("Alice", startNode, "A Movie"); // not symmetric!
-	    relationships.insertUndirected("Alice", startNode, "E Movie"); // not symmetric!
-
+			relationships.insertUndirected("Alice", startNode, "A Movie");
+	    relationships.insertUndirected("Alice", startNode, "E Movie");
+	     
 			System.out.println("The graph:");
 			System.out.println(relationships);
 
@@ -140,9 +174,15 @@ public class Main{
 	}
 
 
+	/**
+	 * Runs different testing methods
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main(String[]args) throws Exception{
 		//handDrawn();
-		runGame("PS4\\bacon\\moviesTest.txt", "PS4\\bacon\\actorsTest.txt", "PS4\\bacon\\movie-actorsTest.txt");
-		//runGame("movies.txt", "actors.txt", "movie-actors.txt");
+		//runGame("PS4\\bacon\\moviesTest.txt", "PS4\\bacon\\actorsTest.txt", "PS4\\bacon\\movie-actorsTest.txt");
+		
+		runGame("PS4\\bacon\\movies.txt", "PS4\\bacon\\actors.txt", "PS4\\bacon\\movie-actors.txt");
 	}
 }

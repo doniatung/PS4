@@ -2,7 +2,7 @@ import java.util.*;
 import java.io.*;
 
 /**
- * Class containing a library of methods to be used on graphs
+ * Class containing a library of methods to be used on graphs.
  * @author Donia Tung, CS10, Dartmouth Fall 2018
  * @author Lucas Rathgeb, CS10, Dartmouth Fall 2018
 */
@@ -23,18 +23,19 @@ public class GraphLibrary{
  		Graph<V,E> pathTree = new AdjacencyMapGraph<V,E>();
 
  		holder.enqueue(source);
+ 		visited.add(source);
  		pathTree.insertVertex(source);
-
+ 		
  		while (!holder.isEmpty()){
  			V u = holder.dequeue();
  			for (V v : g.outNeighbors(u)){
- 				if (!visited.contains(v)){
- 					visited.add(v);
- 					holder.enqueue(v);
- 					pathTree.insertVertex(v);
- 					pathTree.insertDirected(v, u, null);
- 				}
- 			}
+ 	 			if (!visited.contains(v)){
+ 	 				visited.add(v);
+ 	 				holder.enqueue(v);
+ 	 				pathTree.insertVertex(v);
+ 	 				pathTree.insertDirected(v, u, g.getLabel(v, u));
+ 	 			}
+ 	 		}
  		}
  		return pathTree;
    }
@@ -59,13 +60,13 @@ public class GraphLibrary{
     * @param v
  	  */
  	  public static <V,E> List<V> getPathHelper(Graph<V,E> tree, V v, List<V> path){
- 	    if (tree.hasVertex(v) && tree.outDegree(v) == 0){
+ 	    if (tree.outDegree(v) == 0){
  	      return path;
  	    }
  	    else{
- 	      for (V vertex: tree.outNeighbors(v)){//should be only one outNeighbor
+ 	      for (V vertex: tree.outNeighbors(v)){
  	        path.add(vertex);
- 	        getPathHelper(tree, v, path);
+ 	        getPathHelper(tree, vertex, path);
  	      }
  	    }
  	    return path;
@@ -79,18 +80,14 @@ public class GraphLibrary{
  	  */
  	  public static <V,E> Set<V> missingVertices(Graph<V,E> graph, Graph<V,E> subgraph){
  	    HashSet<V> missingV = new HashSet<V>();
- 	    Set<V> bigGVertices = (HashSet<V>) graph.vertices();
- 	    for (V vertex: subgraph.vertices()){
- 	      bigGVertices.remove(vertex);
- 	    }
- 	    for (V remaining: bigGVertices){
- 	      missingV.add(remaining);
+ 	    for (V vertex: graph.vertices()){
+ 	    	if (!subgraph.hasVertex(vertex)) missingV.add(vertex);
  	    }
  	    return missingV;
  	  }
 
     /**
-    *
+    *	Finds the average separation of all points connected to a certain root point.
     * @param tree
     * @param root
     */
@@ -101,20 +98,21 @@ public class GraphLibrary{
  	 }
 
    /**
-   *
+   *	Helper method used to calculate average separation.
    * @param tree
    * @param vertex
    * @param sumDist
    */
  	 private static <V,E> int averageHelper(Graph<V,E> tree, V vertex, int sumDist) {
+ 		 int temp = sumDist;
  		 if(tree.inDegree(vertex) == 0) {
  			 return sumDist;
  		 }else{
  			 for(V v : tree.inNeighbors(vertex)) {
- 				sumDist = averageHelper(tree, v, sumDist + 1) + sumDist;
+ 				temp += averageHelper(tree, v, sumDist + 1);
  			 }
  		 }
- 		 return sumDist;
+ 		 return temp;
  	 }
 
    /**
@@ -164,7 +162,7 @@ public class GraphLibrary{
    */
    public static AdjacencyMapGraph<String, Set<String>> makeGraph (Map<Integer,String> movies, Map<Integer,String> actors, String pathName) throws Exception{
      
-	   AdjacencyMapGraph<String,Set<String>> actorMovieGraph = new AdjacencyMapGraph<String, Set<String>>();
+	 AdjacencyMapGraph<String,Set<String>> actorMovieGraph = new AdjacencyMapGraph<String, Set<String>>();
      HashMap<String, ArrayList<String>> mToA = new HashMap<String, ArrayList<String>>();
      BufferedReader input = null;
      try{
@@ -192,14 +190,17 @@ public class GraphLibrary{
        }
         for (String key: mToA.keySet()){
         	ArrayList<String> actArr = mToA.get(key);
-        	System.out.println(actArr);
           for (String actor: actArr){
             for (String actor2: actArr){
             	
-            	if(actorMovieGraph.hasVertex(actor) && actorMovieGraph.hasVertex(actor2) && !actorMovieGraph.hasEdge(actor, actor2)) {
-            		actorMovieGraph.insertUndirected(actor, actor2, new HashSet<String>());
-            		actorMovieGraph.getLabel(actor, actor2).add(key);
-            	}else if(actorMovieGraph.hasVertex(actor) && actorMovieGraph.hasVertex(actor2)){
+            	if(actorMovieGraph.hasVertex(actor) && 
+            	   actorMovieGraph.hasVertex(actor2) && 
+            	   !actorMovieGraph.hasEdge(actor, actor2) &&
+            	   actor != actor2) {
+            		HashSet<String> temp = new HashSet<String>();
+            		temp.add(key);
+            		actorMovieGraph.insertUndirected(actor, actor2, temp);
+            	}else if(actorMovieGraph.hasVertex(actor) && actorMovieGraph.hasVertex(actor2) && actor != actor2){	
             		actorMovieGraph.getLabel(actor, actor2).add(key);
             	}
             
@@ -219,70 +220,75 @@ public class GraphLibrary{
      return actorMovieGraph;
    }
    
-   public static <V, E> void sortByAvSep(Graph<String,Set<String>> graph, int order){
+   
+   
+   
+   /**
+    * This method sorts the points of the constructed actor-movie graph by average separation. Smallest to largest if input
+    * order is positive and largest to smallest if negative.
+    * @param graph
+    * @param order
+    * @throws Exception
+    */
+   public static <V, E> void sortByAvSep(Graph<String,Set<String>> graph, int order) throws Exception{
 	   ArrayList<Object[]> sortedAv = new ArrayList<Object[]>();
+	   if (order == 0) return;
 	   for(String v: graph.vertices()) {
-		   Object[] arr = {v, averageSeparation(graph, v)};
-		   for(int i = 0; i < sortedAv.size(); i++) {
-			   if ((int)arr[1] < (int)sortedAv.get(i)[1]) {
-				   sortedAv.add(i, arr);
-			   }else if(i == Math.abs(order) - 1) {
-				   sortedAv.add(arr);
-				   break;
-			   }
-		   }
-			   
+		   
+		   Object[] arr = {v, averageSeparation(bfs(graph, v), v)};
+		   sortedAv.add(arr);
 	   }
-	   if(order >= 0) {
-		   for(int i = 0; i < sortedAv.size(); i++) {
-				System.out.println(sortedAv.get(i)[0] + " has an average separation of " + sortedAv.get(i)[1]);
-		   }
+	   if(order > 0) {
+		   sortedAv.sort((Object[] o1, Object[] o2)
+				   -> (int)(((double)o1[1] - (double)o2[1])/Math.abs((double)o1[1] - (double)o2[1])));
 	   }else {
-		   for(int i = 0; i < sortedAv.size(); i++) {
-			   System.out.println(sortedAv.get(sortedAv.size()-i)[0] + " has an average separation of " + sortedAv.get(sortedAv.size()-i)[1]);
-		   }
+		   sortedAv.sort((Object[] o1, Object[] o2) 
+				   -> (int)(((double)o2[1] - (double)o1[1])/Math.abs((double)o2[1] - (double)o1[1])));
+	   }
+	   for(int i = 0; i < Math.abs(order); i++) {
+		   System.out.println(sortedAv.get(i)[0] + " has an average separation of " + sortedAv.get(i)[1]);
 	   }
    }
    
+   
+   
+   /**
+    * This method sorts all point in the graph by the number of inNeighbors they have, between a certain low bound and high bound.
+    * @param graph
+    * @param low
+    * @param high
+    */
    public static <V, E> void sortByDegree(Graph<String,Set<String>> graph, int low, int high) {
 	   ArrayList<Object[]> sortedDeg = new ArrayList<Object[]>();
 	   for(String v: graph.vertices()) {
 		   Object[] arr = {v, graph.inDegree(v)};
-		   for(int i = 0; i < sortedDeg.size(); i++) {
-			   if((int)arr[1] > high || (int)arr[1] < low) {
-				   break;
-			   }
-			   if ((int)arr[1] > (int)sortedDeg.get(i)[1]) {
-				   sortedDeg.add(i, arr);
-			   }else if(i == sortedDeg.size() - 1) {
-				   sortedDeg.add(arr);
-			   }
-		   }
-			   
+		   if( (int)arr[1] <= high && (int)arr[1] >= low) sortedDeg.add(arr); 
 	   }
+	   sortedDeg.sort((Object[] o1, Object[] o2) -> (int)o1[1] - (int)o2[1]);
 	   for(Object[] o : sortedDeg) {
 		   System.out.println(o[0] + " has a degree of " + o[1]);
 	   }
    }
    
+   
+   
+   
+   
+   /**
+    * This method sorts all point in the graph by their distance from the root, between a certain low bound and high bound.
+    * @param graph
+    * @param low
+    * @param high
+    */
    public static <V,E> void sortByPathSep(Graph<String,Set<String>> graph, int low, int high) {
 	   ArrayList<Object[]> sortedSep = new ArrayList<Object[]>();
 	   for(String v: graph.vertices()) {
 		   Object[] arr = {v, getPath(graph, v).size() - 1};
-		   for(int i = 0; i < sortedSep.size(); i++) {
-			   if((int)arr[1] > high || (int)arr[1] < low) {
-				   break;
-			   }
-			   if ((int)arr[1] > (int)sortedSep.get(i)[1]) {
-				   sortedSep.add(i, arr);
-			   }else if(i == sortedSep.size() - 1) {
-				   sortedSep.add(arr);
-			   }
-		   }
-			   
+		   if((int)arr[1] <= high && (int)arr[1] >= low) sortedSep.add(arr);			   
 	   }
+	   sortedSep.sort((Object[] o1, Object[] o2) -> (int)o1[1] - (int)o2[1]);
 	   for(Object[] o : sortedSep) {
-		   System.out.println(o[0] + " has a degree of " + o[1]);
+		   System.out.println(o[0] + " has a separation of " + o[1]);
 	   }
    }
 
