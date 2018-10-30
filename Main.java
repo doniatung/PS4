@@ -25,7 +25,7 @@ public class Main{
 		Graph<String, Set<String>> bfs = null;
 		Scanner input = new Scanner(System.in);
 		String CoU = "";
-		
+		//Print instructions
 		System.out.println("What would you like to do?\nCommands:\r\n" +
 				"c <#>: list top (positive number) or bottom (negative) <#> centers of the universe, sorted by average separation\r\n" +
 				"d <low> <high>: list actors sorted by degree, with degree between low and high\r\n" +
@@ -34,16 +34,17 @@ public class Main{
 				"s <low> <high>: list actors sorted by non-infinite separation from the current center, with separation between low and high\r\n" +
 				"u <name>: make <name> the center of the universe\r\n" +
 				"q: quit game");
-		
+		//While at play, receive commands
 		while(play) {
 			System.out.print("Input command: ");
 			input = new Scanner(System.in);
 			String str = input.nextLine();
 			char toDo = str.charAt(0);
 			isValid = false;
-			
+
 			while(!isValid) {
-				if(toDo == 'c') {		//sorts all point in graph by average separation
+				//sorts all point in graph by average separation
+				if(toDo == 'c') {
 						isValid = true;
 						System.out.print("Please input number of vertices: ");
 						int order = input.nextInt();
@@ -58,20 +59,24 @@ public class Main{
 						else{
 							System.out.println("That number is too big. Try a smaller one.");
 						}
-				
-				}else if(toDo == 'd') {//sorts points by in degree
-					
+
+				}
+				//sorts points by in degree
+				else if(toDo == 'd') {
+
 					isValid = true;
 					System.out.print("Input low bound: ");
 					int low = input.nextInt();
 					System.out.print("Input high bound: ");
 					int high = input.nextInt();
-					
+
 					GraphLibrary.sortByDegree(graph, low, high);
-					
-					
-				}else if(toDo == 'i') {//return points not connected to input center of the universe
-					
+
+
+				}
+				//return points not connected to input center of the universe
+				else if(toDo == 'i') {
+
 					isValid = true;
 					if(CoU.length() == 0) {
 						System.out.println("Please set a center.");
@@ -79,12 +84,14 @@ public class Main{
 						System.out.println("The following actors are not connected to " + CoU + ": " + GraphLibrary.missingVertices(graph, bfs));
 					}
 
-				}else if(toDo == 'p') {//return the path from an input point to the center of the universe
-					
+				}
+				//return the path from an input point to the center of the universe
+				else if(toDo == 'p') {
+
 					isValid = true;
 					System.out.print("Please enter a name: ");
 					String person = input.nextLine();
-					
+
 					if (bfs != null && bfs.hasVertex(person)){
 						List<String> list = GraphLibrary.getPath(bfs, person);
 						int num = list.size() - 1;
@@ -100,9 +107,11 @@ public class Main{
 					else{
 						System.out.println("Sorry, that person is not connected to " + CoU);
 					}
-					
-				}else if(toDo == 's') {//sorts points by their distance from the center of the universe
-					
+
+				}
+				//sorts points by their distance from the center of the universe
+				else if(toDo == 's') {
+
 					isValid = true;
 					if(bfs == null) {
 						System.out.println("Please set a center.");
@@ -113,29 +122,35 @@ public class Main{
 						int high = input.nextInt();
 						GraphLibrary.sortByPathSep(bfs, low, high);
 					}
-					
-				}else if(toDo == 'u') {//sets center of the universe
-					
+
+				}
+				//sets center of the universe
+				else if(toDo == 'u') {
+
 					isValid = true;
 					System.out.print("Please enter name: ");
 					CoU = input.nextLine();
-					
+
 					if (graph.hasVertex(CoU)){
 						System.out.println(CoU + " game >");
 						bfs = GraphLibrary.bfs(graph, CoU);
 					}else{
-						System.out.println("Sorry, that actor is not in this dataset. Try someone new.");	
+						System.out.println("Sorry, that actor is not in this dataset. Try someone new.");
 					}
-					
-				}else if(toDo == 'q') {//quits game
-					
+
+				}
+				//quits game
+				else if(toDo == 'q') {
+
 					isValid = true;
 					play = false;
 					System.out.println("Thanks for playing!");
-					
-				
-				}else {//catches invalid input
-					
+
+
+				}
+				//catches invalid input
+				else {
+
 					System.out.println("Please use a valid command.");
 					break;
 				}
@@ -166,7 +181,7 @@ public class Main{
 			relationships.insertUndirected(startNode, "Bob", "A Movie");
 			relationships.insertUndirected("Alice", startNode, "A Movie");
 	    relationships.insertUndirected("Alice", startNode, "E Movie");
-	     
+
 			System.out.println("The graph:");
 			System.out.println(relationships);
 
@@ -182,7 +197,7 @@ public class Main{
 	public static void main(String[]args) throws Exception{
 		//handDrawn();
 		//runGame("PS4\\bacon\\moviesTest.txt", "PS4\\bacon\\actorsTest.txt", "PS4\\bacon\\movie-actorsTest.txt");
-		
+
 		runGame("PS4\\bacon\\movies.txt", "PS4\\bacon\\actors.txt", "PS4\\bacon\\movie-actors.txt");
 	}
 }

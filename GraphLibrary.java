@@ -18,20 +18,24 @@ public class GraphLibrary{
    * contains pointers from children up to parents
    */
  	public static <V,E> Graph<V,E> bfs(Graph<V,E> g, V source) throws Exception{
- 		SimpleQueue<V> holder = new SLLQueue<V>();
+    //instantiate local variables for running through the bfs algorithm
+    SimpleQueue<V> holder = new SLLQueue<V>();
  		Set<V> visited = new HashSet<V>();
  		Graph<V,E> pathTree = new AdjacencyMapGraph<V,E>();
-
+    //add the center of the universe to the pathTree and the queue and the list of visited nodes
  		holder.enqueue(source);
  		visited.add(source);
  		pathTree.insertVertex(source);
- 		
+ 		//as long as there are still nodes to visit
  		while (!holder.isEmpty()){
+      //dequeue the next element
  			V u = holder.dequeue();
+      //check its neighbors, if not visited, add to the queue
  			for (V v : g.outNeighbors(u)){
  	 			if (!visited.contains(v)){
  	 				visited.add(v);
  	 				holder.enqueue(v);
+          //insert dequeued element into the graph, add labels between it and its neighbors
  	 				pathTree.insertVertex(v);
  	 				pathTree.insertDirected(v, u, g.getLabel(v, u));
  	 			}
@@ -47,7 +51,8 @@ public class GraphLibrary{
    * @return      a list of points reached as one passes from the vertex to the center of the graph
  	  */
  	  public static <V,E> List<V> getPath(Graph<V,E> tree, V v){
- 	    List<V> path = new ArrayList<V>();
+      //instantiates instance variable path, gets passed into helper method
+      List<V> path = new ArrayList<V>();
  	    path.add(v);
  	    getPathHelper(tree, v, path);
  	    return path;
@@ -60,10 +65,12 @@ public class GraphLibrary{
     * @param v
  	  */
  	  public static <V,E> List<V> getPathHelper(Graph<V,E> tree, V v, List<V> path){
- 	    if (tree.outDegree(v) == 0){
+      //if vertex has no outNeighbors, return the path
+      if (tree.outDegree(v) == 0){
  	      return path;
  	    }
  	    else{
+        //for each outNeighbor of the given vertex (there should only be one), add the vertex to the path
  	      for (V vertex: tree.outNeighbors(v)){
  	        path.add(vertex);
  	        getPathHelper(tree, vertex, path);
@@ -80,7 +87,8 @@ public class GraphLibrary{
  	  */
  	  public static <V,E> Set<V> missingVertices(Graph<V,E> graph, Graph<V,E> subgraph){
  	    HashSet<V> missingV = new HashSet<V>();
- 	    for (V vertex: graph.vertices()){
+      //for each vertex in the graph, check if it's in the subgraph, if not, add to hashset to be returned
+      for (V vertex: graph.vertices()){
  	    	if (!subgraph.hasVertex(vertex)) missingV.add(vertex);
  	    }
  	    return missingV;
@@ -125,9 +133,11 @@ public class GraphLibrary{
      Map<Integer, String> ids = new HashMap<Integer, String>();
      BufferedReader input = null;
      try{
+       //read in the file line by line
        input = new BufferedReader(new FileReader(pathName));
        String line = input.readLine();
        while (line != null){
+         //if line has |, then split, add to Map ids with ID as key and String as value
          if (line.contains("|")){
            String[] id = line.split("\\|");
            int num = Integer.parseInt(id[0]);
@@ -161,25 +171,31 @@ public class GraphLibrary{
    * @return    a constructed AdjacencyMapGraph with Keys as movie title Strings and Values of ArrayLists of actors within the movies
    */
    public static AdjacencyMapGraph<String, Set<String>> makeGraph (Map<Integer,String> movies, Map<Integer,String> actors, String pathName) throws Exception{
-     
+
 	 AdjacencyMapGraph<String,Set<String>> actorMovieGraph = new AdjacencyMapGraph<String, Set<String>>();
      HashMap<String, ArrayList<String>> mToA = new HashMap<String, ArrayList<String>>();
      BufferedReader input = null;
      try{
+       //read in given file, line by line
        input = new BufferedReader(new FileReader(pathName));
        String line = input.readLine();
        while ( line != null){
+         //if line containts |, get values of movie, actor ids
          if (line.contains("|")){
            String[] id = line.split("\\|");
            int movieInt = Integer.parseInt(id[0]);
            int actorInt = Integer.parseInt(id[1]);
+           //get corresponding strings from Maps
            String movie = movies.get(movieInt);
            String actor = actors.get(actorInt);
            ArrayList<String> list = new ArrayList<String>();
+           //if the Movie is already in the map, add the actor to the value List
            if (mToA.containsKey(movie)){
              mToA.get(movie).add(actor);
+             //if Actor is not a vertex in the graph yet, insert the vertex containnig the actor
              if(!actorMovieGraph.hasVertex(actor)) actorMovieGraph.insertVertex(actor);
            }
+           //else, insert the Actor as a vertex in the graph, add it to a new arrayList, and put in inside the map
            else{
         	 if(!actorMovieGraph.hasVertex(actor)) actorMovieGraph.insertVertex(actor);
              list.add(actor);
@@ -188,22 +204,24 @@ public class GraphLibrary{
          }
          line = input.readLine();
        }
+       //for each key in the map of movies to actors
+       //for each movie, add vertices between the actors in the movie
         for (String key: mToA.keySet()){
         	ArrayList<String> actArr = mToA.get(key);
           for (String actor: actArr){
             for (String actor2: actArr){
             	
-            	if(actorMovieGraph.hasVertex(actor) && 
-            	   actorMovieGraph.hasVertex(actor2) && 
+            	if(actorMovieGraph.hasVertex(actor) &&
+            	   actorMovieGraph.hasVertex(actor2) &&
             	   !actorMovieGraph.hasEdge(actor, actor2) &&
             	   actor != actor2) {
             		HashSet<String> temp = new HashSet<String>();
             		temp.add(key);
             		actorMovieGraph.insertUndirected(actor, actor2, temp);
-            	}else if(actorMovieGraph.hasVertex(actor) && actorMovieGraph.hasVertex(actor2) && actor != actor2){	
+            	}else if(actorMovieGraph.hasVertex(actor) && actorMovieGraph.hasVertex(actor2) && actor != actor2){
             		actorMovieGraph.getLabel(actor, actor2).add(key);
             	}
-            
+
             }
           }
         }
@@ -219,10 +237,10 @@ public class GraphLibrary{
      }
      return actorMovieGraph;
    }
-   
-   
-   
-   
+
+
+
+
    /**
     * This method sorts the points of the constructed actor-movie graph by average separation. Smallest to largest if input
     * order is positive and largest to smallest if negative.
@@ -234,7 +252,7 @@ public class GraphLibrary{
 	   ArrayList<Object[]> sortedAv = new ArrayList<Object[]>();
 	   if (order == 0) return;
 	   for(String v: graph.vertices()) {
-		   
+
 		   Object[] arr = {v, averageSeparation(bfs(graph, v), v)};
 		   sortedAv.add(arr);
 	   }
@@ -242,16 +260,16 @@ public class GraphLibrary{
 		   sortedAv.sort((Object[] o1, Object[] o2)
 				   -> (int)(((double)o1[1] - (double)o2[1])/Math.abs((double)o1[1] - (double)o2[1])));
 	   }else {
-		   sortedAv.sort((Object[] o1, Object[] o2) 
+		   sortedAv.sort((Object[] o1, Object[] o2)
 				   -> (int)(((double)o2[1] - (double)o1[1])/Math.abs((double)o2[1] - (double)o1[1])));
 	   }
 	   for(int i = 0; i < Math.abs(order); i++) {
 		   System.out.println(sortedAv.get(i)[0] + " has an average separation of " + sortedAv.get(i)[1]);
 	   }
    }
-   
-   
-   
+
+
+
    /**
     * This method sorts all point in the graph by the number of inNeighbors they have, between a certain low bound and high bound.
     * @param graph
@@ -262,18 +280,18 @@ public class GraphLibrary{
 	   ArrayList<Object[]> sortedDeg = new ArrayList<Object[]>();
 	   for(String v: graph.vertices()) {
 		   Object[] arr = {v, graph.inDegree(v)};
-		   if( (int)arr[1] <= high && (int)arr[1] >= low) sortedDeg.add(arr); 
+		   if( (int)arr[1] <= high && (int)arr[1] >= low) sortedDeg.add(arr);
 	   }
 	   sortedDeg.sort((Object[] o1, Object[] o2) -> (int)o1[1] - (int)o2[1]);
 	   for(Object[] o : sortedDeg) {
 		   System.out.println(o[0] + " has a degree of " + o[1]);
 	   }
    }
-   
-   
-   
-   
-   
+
+
+
+
+
    /**
     * This method sorts all point in the graph by their distance from the root, between a certain low bound and high bound.
     * @param graph
@@ -284,7 +302,7 @@ public class GraphLibrary{
 	   ArrayList<Object[]> sortedSep = new ArrayList<Object[]>();
 	   for(String v: graph.vertices()) {
 		   Object[] arr = {v, getPath(graph, v).size() - 1};
-		   if((int)arr[1] <= high && (int)arr[1] >= low) sortedSep.add(arr);			   
+		   if((int)arr[1] <= high && (int)arr[1] >= low) sortedSep.add(arr);
 	   }
 	   sortedSep.sort((Object[] o1, Object[] o2) -> (int)o1[1] - (int)o2[1]);
 	   for(Object[] o : sortedSep) {
