@@ -98,7 +98,7 @@ public class Main{
 						System.out.println("p " + person);
 						System.out.println(person + "\'s number is " + num);
 						for (int i = 0; i < list.size() - 1; i ++){
-							System.out.println(bfs.hasEdge(list.get(i),  list.get(i + 1)));
+							//System.out.println(bfs.hasEdge(list.get(i),  list.get(i + 1)));
 							System.out.println(list.get(i) + " appeared in " + bfs.getLabel(list.get(i), list.get(i+1)) + " with " + list.get(i+1));
 						}
 					}else if(bfs == null){
@@ -198,6 +198,6 @@ public class Main{
 		//handDrawn();
 		//runGame("PS4\\bacon\\moviesTest.txt", "PS4\\bacon\\actorsTest.txt", "PS4\\bacon\\movie-actorsTest.txt");
 
-		runGame("PS4\\bacon\\movies.txt", "PS4\\bacon\\actors.txt", "PS4\\bacon\\movie-actors.txt");
+		runGame("bacon/movies.txt", "bacon/actors.txt", "bacon/movie-actors.txt");
 	}
 }
